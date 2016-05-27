@@ -1,0 +1,85 @@
+ -- @author Daragh Walshe	Student# B00064428
+ -- Group: Group 1			Date:  March 2014
+ -- Treadmill Project	Year 2
+ -- COMP H2027 - Software Engineering and Testing
+
+
+use treadmill;
+
+create table users(
+	username varchar(30) primary key,
+	password varchar(30) not null,
+	usertype varchar(30) not null
+	);
+
+insert into users values('serviceman01', 'service01', 'srv');
+insert into users values('serviceman02', 'service02', 'srv');
+insert into users values('serviceman03', 'service03', 'srv');
+insert into users values('staff01', 'therapy01', 'med');
+insert into users values('staff02', 'therapy02', 'med');
+insert into users values('staff03', 'therapy03', 'med');
+
+select * from users where password = 'therapy02';
+
+---------------------------------------------------------------
+
+use treadmill;
+
+create table patient(
+	name varchar(30) primary key,
+	dob varchar(30) not null,
+	pps varchar(30) not null,
+	address varchar(50) not null,
+	city varchar(30) not null,
+	gender varchar(10),
+	height varchar(20),
+	weight varchar(20),
+	med varchar(50),
+	doctor varchar(30),
+	comments varchar(200)
+	);
+	
+insert into patient values('M. Murphy','11-7-78','6573493H','11 Easy Street','Dublin','Male','180','110','nil','Dr. Roberts','Previous fracture of left tibia');
+insert into patient values('K. Ward','03-6-92','3548935T','7 Knobbly Lane','Dublin','Male','142','103','morphene','Dr. Maguire','Second round of physio');
+insert into patient values('L. Smith','21-8-65','5480984T','286 Long Road','Kerry','Female','138','97','asparin','Dr. Roberts','Heavy Smoker');
+insert into patient values('T. Houlihan','07-3-83','6597365W','51 Willow Av','Cork','Male','173','165','lipotor','Dr. Roberts','nil');
+insert into patient values('R. O'Shea','21-11-91','3455687R','28 Pineview walk','Dublin','Female','156','93','nil','Dr. Bones','Has a heart condition');
+insert into patient values('P. Kelly','07-3-95','6589256U','31 Old Street','Limerick','Female','172','87','nil','Dr. Maguire','Trial physio. sessions');
+insert into patient values('U. Hagan','12-9-92','7786987D','78 Carmine Place','Dublin','Male','193','116','prozaic','Dr. Ryan','Must be collected from ward 9');
+insert into patient values('M. Ryan','25-10-94','5467699W','112 Robin place','Cork','Male','181','108','asparin','Dr. Fletcher','Previous left leg fracture');
+insert into patient values('E. Doyle','14-02-84','5644983T','12 Cosey Lane','Dublin','Female','160','90','losec','Dr. Roberts','nil');
+insert into patient values('J. Sullivan','28-9-68','9875564T','35 Bramley Rd','Dublin','Male','173','82','nil','Dr. Maguire','Heavy smoker');
+	
+-------------------------------------------------------------------------
+	
+use treadmill;
+
+create table session(
+	sessionID varchar(30) primary key,
+	speed int(6) not null,
+	gradient int(6) not null,
+	time int(6)
+	);
+	
+insert into session values('6573493H', 4, 0, 20);
+insert into session values('3548935T', 5, 10, 25);
+insert into session values('5480984T', 3, 5, 15);	
+insert into session values('6597365W', 4, 15, 30);	
+insert into session values('3455687R', 2, 0, 10);
+	
+insert into session values('6589256U', 2, 0, 10);
+insert into session values('7786987D', 5, 15, 30);
+insert into session values('5467699W', 3, 8, 15);
+insert into session values('5644983T', 4, 12, 35);
+insert into session values('9875564T', 6, 10, 35);
+
+	
+	select * from session;
+	
+--------------------------------------------------------------------------	
+	
+	
+	
+	
+	
+	
