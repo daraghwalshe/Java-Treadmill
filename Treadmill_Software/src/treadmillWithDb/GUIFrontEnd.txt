@@ -1,0 +1,167 @@
+
+package treadmillWithDb;
+
+//products
+
+import java.sql.*;
+
+import javax.swing.*;
+import javax.swing.event.*;
+import javax.swing.table.*;
+
+/** 
+ * This class is a GUI front end for a mySQL database. 
+ * It assumes a stock inventory database and will display the 
+ * database product details in a JTable and allow the user to 
+ * select an item from the JTable and give them details about 
+ * the product manufacturer. <p>
+ *
+ * @author	Simon McLoughlin
+ * @see mySQLEngine
+ */
+
+@SuppressWarnings("serial")
+public class GUIFrontEnd extends JFrame implements ListSelectionListener{
+	
+	
+	//Table for stock details
+	JTable patientTable = null;
+	
+	//scroll pane for stocktable
+	JScrollPane scrollPane;
+	
+	//Database engine for creating DB connection, making queries
+	mySQLEngine dbEngine = new mySQLEngine("root","qwerty"); //database engine
+	
+	/**
+	 * Constructor for GUIFrontEnd JFrame, calls constructor in 
+	 * super class JFrame and calls the {@link #init() init} method
+	 * @param title the title of the GUIFrontEnd JFrame
+	 */
+	public GUIFrontEnd(String title) {
+		super(title);
+		init();
+	}
+	
+	/**
+	 * Create connection to the DB and call {@link #populatePatientTable() populatePatientTable}.
+	 * this call would normally be triggered by a user in a real 
+	 * (non-demo) application. 
+	 */
+	public void init() {
+		dbEngine.connnect();
+		populatePatientTable();
+	}
+	
+	/**
+	 * method to retrieve patient details from the database 
+	 * and display them in a JTable.
+	 */
+	public void populatePatientTable() {
+		
+		//select everything from users table
+		ResultSet rs;
+		ResultSetMetaData rsmd = null;
+		int colCount=0;
+		String [] colNames = null;
+		
+		//get the column names from the ResultSet metadata
+		try {
+			rs = dbEngine.executeQuery("select * from patient");
+			rsmd = rs.getMetaData();
+			colCount = rsmd.getColumnCount();
+	        colNames = new String[colCount];
+	        for(int i=1;i<=colCount;i++) {
+	        	colNames[i-1] = rsmd.getColumnName(i);
+	        }
+	        
+	        //JTables have a view class and a control class, the view class
+			//handles the drawing of the JTable, the Model class handles the properties
+			//and the data
+			
+			//Create a table model (used for controlling a JTable)
+			DefaultTableModel model = new DefaultTableModel(colNames,0);
+			patientTable = new JTable(model);
+			
+			//Similarly a ListSelectionModel represents the current state of the selection
+			//for components (like JTables) 
+			DefaultListSelectionModel dlsm = new DefaultListSelectionModel();
+			//allow single selection only from stockTable
+			dlsm.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+			patientTable.setSelectionModel(dlsm);
+			dlsm.addListSelectionListener(this); //lets use this JFrame as the event handler for
+												 //when an item is selected
+			
+			String [] currentRow = new String[colCount];//array to hold the row data
+			while(rs.next()) { //move the rs pointer on to the next record (starts before the 1st)
+				for(int i=1;i<=colCount;i++) {
+					currentRow[i-1] = rs.getString(i);
+				}
+				model.addRow(currentRow); //add the row to the table through the table model
+			}
+		}
+		catch (SQLException e) {
+			System.err.println("SQLException: " + e.getMessage());
+		}
+		
+		scrollPane = new JScrollPane(patientTable);//add the table to a scroll pane
+		this.getContentPane().add(scrollPane);
+	}
+	
+	/** Event handler for the list selection model
+	 * 	This will get the manufacturer ID from the selected row
+	 * 	in the stock table and pass it to show {@link #showPatientDialog(String) showManufacturerDetails}
+	 * 
+	 * 	@param e The ListSelectionEvent details
+	 */
+	public void valueChanged(ListSelectionEvent e) {
+		//table row and column indexes start at zero, hence some -1's
+		//note that I could (and probably should) of performed an sql query 
+		//to get the column index for patientID, rather than using a prior knowledge
+		String patientID = (String) patientTable.getValueAt(patientTable.getSelectedRow(), patientTable.getColumnCount()-9);
+		showPatientDialog(patientID);
+		System.out.println(patientID);
+	}
+	
+	/**
+	 * Form and execute a query to get the manufacturer details
+	 * for a particular product. The product is the one selected
+	 * by the user. Display results in a dialog box.
+	 * 
+	 * @param patientIDIn The patientID used in the query
+	 */
+	public void showPatientDialog(String patientIDIn) {
+		
+		ResultSetMetaData rsmd = null;
+		int colCount=0;
+		String message = "Patient Session Details:\n";
+		try {
+			ResultSet rs = dbEngine.executeQuery("select * from session where sessionID='"+patientIDIn+"'");
+			rsmd = rs.getMetaData();
+			rs.next();//move result set pointer to first and only row
+			colCount = rsmd.getColumnCount();//get number of columns
+			//create a manufacturer details message string
+	        for(int i=1;i<=colCount;i++) {
+	        	message = message + rsmd.getColumnName(i)+": "+rs.getString(i)+"\n"; 
+	        }
+		}
+		catch (SQLException e) {
+			System.err.println("SQLException: " + e.getMessage());
+		}
+		JOptionPane.showMessageDialog(this, message); //show details in a dialog box
+	}
+	
+
+
+	/**
+	 * The method to instantiate GUIFrontEnd and show it.
+	 * @param titleIn A title for the window
+	 */
+	public static void ShowTable(String titleIn){
+		GUIFrontEnd gui = new GUIFrontEnd(titleIn);
+		gui.pack();
+		gui.setVisible(true);
+	}
+		
+
+}
